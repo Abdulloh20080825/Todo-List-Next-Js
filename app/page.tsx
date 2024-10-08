@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { v4 as uuid } from 'uuid';
 import Todo from '@/components/Todo';
 
@@ -13,6 +13,12 @@ interface Todo {
 const Page: React.FC = () => {
 	const [todos, setTodos] = useState<Todo[]>([]);
 	const [value, setValue] = useState<string>('');
+	useEffect(() => {
+		const storedTodos = localStorage.getItem('todos');
+		if (storedTodos) {
+			setTodos(JSON.parse(storedTodos));
+		}
+	}, []);
 
 	const handleAddTodo = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -23,6 +29,8 @@ const Page: React.FC = () => {
 			title: value,
 			isEdit: false,
 		};
+
+		localStorage.setItem('todos', JSON.stringify([...todos, newTodo]));
 
 		setTodos((prev) => [...prev, newTodo]);
 		setValue('');
@@ -76,6 +84,7 @@ const Page: React.FC = () => {
 						Add Todo
 					</button>
 				</form>
+
 				<ul className='mt-6 space-y-5'>
 					{todos.map((todo) => (
 						<Todo
