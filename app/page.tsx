@@ -1,0 +1,83 @@
+'use client';
+import React, { useState, FormEvent } from 'react';
+import Todo from '@/components/Todo';
+import { v4 as uuid } from 'uuid';
+
+interface Todo {
+	id: string;
+	title: string;
+	isEdit: boolean;
+}
+const Page: React.FC = () => {
+	const [todos, setTodos] = useState<Todo[]>([]);
+	const [value, setValue] = useState<string>('');
+
+	const handleAddTodo = (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		if (value.trim() === '') return;
+		const newTodo = {
+			id: uuid(),
+			title: value,
+			isEdit: false,
+		};
+		setTodos((prev) => [...prev, newTodo]);
+		setValue('');
+	};
+
+	const handleActiveEdit = (id: string) => {
+		const todo = todos.find((x) => x.id === id);
+		if (todo) {
+			todo.isEdit = !todo.isEdit;
+		}
+	};
+	const handleDeleteTodo = (id: string) => {
+		const filteredTodo = todos.filter((x) => x.id !== id);
+		setTodos(filteredTodo);
+	};
+
+	return (
+		<div className='flex justify-center items-center min-h-screen'>
+			<div className='shadow-lg rounded-lg p-8 max-w-lg w-full'>
+				<h1 className='text-2xl font-bold text-center mb-6'>
+					Todo List Next.js
+				</h1>
+				<form className='flex flex-col space-y-4' onSubmit={handleAddTodo}>
+					<div className='flex flex-col'>
+						<label htmlFor='add' className='mb-2 font-medium'>
+							Add Todo
+						</label>
+						<input
+							type='text'
+							id='add'
+							name='add'
+							value={value}
+							onChange={(e) => setValue(e.target.value)}
+							placeholder='Add Todo'
+							className='px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-black'
+						/>
+					</div>
+					<button
+						type='submit'
+						className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300'
+					>
+						Add Todo
+					</button>
+				</form>
+
+				<ul className='mt-6 space-y-5'>
+					{todos.map((todo) => (
+						<Todo
+							key={todo.id}
+							todo={todo}
+							handleActiveEdit={handleActiveEdit}
+							handleDelete={handleDeleteTodo}
+							todos={todos}
+						/>
+					))}
+				</ul>
+			</div>
+		</div>
+	);
+};
+
+export default Page;
